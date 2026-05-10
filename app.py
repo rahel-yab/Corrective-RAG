@@ -1,4 +1,6 @@
 from typing import List, TypedDict
+from langchain_community.tools.tavily_search import TavilySearchResults
+
 
 class GraphState(TypedDict):
     """
@@ -34,3 +36,18 @@ def grade_documents(state):
             search = "Yes" # If even one doc is bad, let's try the web
             
     return {"documents": filtered_docs, "question": question, "web_search": search}
+
+
+def web_search(state):
+    print("---WEB SEARCHING---")
+    question = state["question"]
+    documents = state["documents"]
+
+    tool = TavilySearchResults(k=3)
+    docs = tool.invoke({"query": question})
+    
+    # Format the web results to match our document list
+    web_results = "\n".join([d["content"] for d in docs])
+    documents.append(web_results)
+    
+    return {"documents": documents, "question": question}
