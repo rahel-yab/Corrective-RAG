@@ -71,3 +71,35 @@ def generate(state):
     # In a real app, you'd pass 'documents' to an LLM here.
     # For now, let's just simulate the result.
     return {"generation": f"Based on {len(documents)} sources, here is the answer to: {question}"}
+
+from langgraph.graph import END, StateGraph, START
+
+# 1. Initialize the Graph with our State schema
+workflow = StateGraph(GraphState)
+
+# 2. Add all our Nodes
+workflow.add_node("retrieve", retrieve)
+workflow.add_node("grade_documents", grade_documents)
+workflow.add_node("web_search", web_search)
+workflow.add_node("generate", generate)
+
+# 3. Build the Edges (The Flow)
+workflow.add_edge(START, "retrieve")
+workflow.add_edge("retrieve", "grade_documents")
+
+# 4. Add the Conditional Logic (The 'Corrective' part)
+workflow.add_conditional_edges(
+    "grade_documents", # After grading is done...
+    decide_to_generate, # Run this function to decide where to go
+    {
+        "search": "web_search", # If it returns "search", go to web_search node
+        "generate": "generate"   # If it returns "generate", go to generate node
+    }
+)
+
+# 5. Connect the remaining paths to the end
+workflow.add_edge("web_search", "generate")
+workflow.add_edge("generate", END)
+
+# 6. Compile the graph
+app = workflow.compile()
