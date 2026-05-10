@@ -51,3 +51,23 @@ def web_search(state):
     documents.append(web_results)
     
     return {"documents": documents, "question": question}
+
+def decide_to_generate(state):
+    """
+    Determines whether to generate an answer or search the web.
+    """
+    print("---DECIDING NEXT STEP---")
+    if state["web_search"] == "Yes":
+        return "search"
+    else:
+        return "generate"
+
+# We also need a 'Generate' node to actually give the final answer
+def generate(state):
+    print("---GENERATING FINAL ANSWER---")
+    question = state["question"]
+    documents = state["documents"]
+    
+    # In a real app, you'd pass 'documents' to an LLM here.
+    # For now, let's just simulate the result.
+    return {"generation": f"Based on {len(documents)} sources, here is the answer to: {question}"}
