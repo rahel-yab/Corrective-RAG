@@ -103,3 +103,16 @@ workflow.add_edge("generate", END)
 
 # 6. Compile the graph
 app = workflow.compile()
+
+
+# Test Case 1: Something in our 'mock' data (Python)
+inputs = {"question": "What is Python?"}
+for output in app.stream(inputs):
+    print(output)
+
+print("\n" + "="*30 + "\n")
+
+# Test Case 2: Something NOT in our mock data (triggers Web Search)
+inputs_2 = {"question": "What is the weather in Addis Ababa?"}
+for output in app.stream(inputs_2):
+    print(output)
