@@ -1,7 +1,13 @@
 from typing import List, TypedDict
-from langchain_community.tools.tavily_search import TavilySearchResults
+from langchain_tavily import TavilySearchResults
 from langgraph.graph import END, StateGraph, START
+import os
+from dotenv import load_dotenv
 
+load_dotenv()
+
+if not os.getenv("TAVILY_API_KEY"):
+    print("Warning: TAVILY_API_KEY not found in environment!")
 
 class GraphState(TypedDict):
     """
@@ -25,16 +31,13 @@ def grade_documents(state):
     question = state["question"]
     documents = state["documents"]
     
-    # Logic: If 'python' isn't in the docs but the user asked about it, 
-    # we trigger web search.
     filtered_docs = []
-    search = "No"
+    search = "Yes" # Default to Yes, and change to No if we find a match
     
     for d in documents:
-        if "python" in d.lower(): # Simplified logic for learning
+        if "python" in d.lower(): 
             filtered_docs.append(d)
-        else:
-            search = "Yes" # If even one doc is bad, let's try the web
+            search = "No" # We found a good doc! No need for web search.
             
     return {"documents": filtered_docs, "question": question, "web_search": search}
 
