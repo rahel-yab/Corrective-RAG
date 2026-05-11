@@ -1,5 +1,6 @@
 from typing import List, TypedDict
 from langchain_community.tools.tavily_search import TavilySearchResults
+from langgraph.graph import END, StateGraph, START
 
 
 class GraphState(TypedDict):
@@ -72,7 +73,6 @@ def generate(state):
     # For now, let's just simulate the result.
     return {"generation": f"Based on {len(documents)} sources, here is the answer to: {question}"}
 
-from langgraph.graph import END, StateGraph, START
 
 # 1. Initialize the Graph with our State schema
 workflow = StateGraph(GraphState)
@@ -116,3 +116,5 @@ print("\n" + "="*30 + "\n")
 inputs_2 = {"question": "What is the weather in Addis Ababa?"}
 for output in app.stream(inputs_2):
     print(output)
+
+app.get_graph().print_ascii()
